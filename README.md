@@ -19,3 +19,23 @@ U okviru zgrade filharmonije postoji više sala a svaka je okarakterisana svojim
 Kompoziciju izvodi više izvođača, dok izvođač može izvoditi više kompozicija (naravno, ne u istom trenutku). Dirigent, u toku vremena, može biti zadužen za dirigovanje više izvođenja a jednim konkretnim izvođenjem diriguje samo jedan dirigent.
 
 Jedno izvođenje kompozicije se održava u samo jednoj sali, dok se u sali može izvoditi i više kompozicija (ne u istom trenutku).
+
+&nbsp;
+
+Nezavisni entiteti:
+* Osoblje
+* Koncertne sale
+* Blagajne
+* Kompozicije
+
+Zavisni entiteti:
+* Čin
+* Generalizacija:
+  * Izvođač
+  * Dirigent
+  * Higijeničar
+  * Blagajink
+
+Agregirani entiteti:
+* Izvodi
+* Zadužen
