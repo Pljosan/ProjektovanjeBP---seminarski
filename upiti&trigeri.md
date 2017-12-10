@@ -33,16 +33,7 @@
       insert into blagajnik
       values(uneseniId, unesenaBlagajna, unesenoVreme)
     ```
-  - Upit koji će da izlista izvođače pod nekim dirigentom 
-    ```
-      select o.ime
-      from osoblje o join orkestar ork
-          on o.id = ork.izvodjac_osoblje_id
-        join izvodjenje i
-          on i.koncertnaSala_id = ork.koncertnaSala_id
-          and i.vreme = ork.vreme
-      where i.dirigent_osoblje_id = 
-        (select id from osoblje where ime = unesenoIme)
-      and i.vreme = unesenoVreme
-    ```
+  - Upit koji će da izlista sve izvođače prema instrumentu (i možda još nekim detaljima, ako recimo želi da zna koji je violinista svirao na koncertu koji je on gledao) koji korisnik unese
+    
+  - Upit koji će korisniku da izlista imena izvođača za izvođenje koje želi da sluša, kao i dirigenta i osnovne informacije o njemu.
  
