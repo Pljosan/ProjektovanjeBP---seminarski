@@ -3,7 +3,7 @@
 # Planirani trigeri
 
 ### Check trigeri
-  - Osoblje: plata > 0
+  - Osoblje: plata > 0 
   - Dirigent: godineIskustva > 5
   - Blagajnik: preferiranaSmena in ('Jutarnja', 'Podnevna') //jutro - 9-15; podne - 15-21
   - KoncertnaSala: brojMesta > 0
@@ -11,6 +11,9 @@
 ### Ostali trigeri
   - Ako higijeničar završi još jedan nivo stručne spreme, povećava mu se plata
   - Zabranjuje se unos/izmena blagajnika, ako se time ne bi poklapali radno vreme njegovog radnog mesta (tj. blagajne) i njegovo preferirano radno vreme
+  - Dodati polje 'penzionisan' u dirigenta, i onda će postojati triger koji ne dozvoljava da se penzionisani dirigent doda u 'Diriguje'
+  - Dodati polje 'broj činova' u kompoziciju, tada će postojati triger koji ne dozvoljava unos činova za tu kompoziciju koji je veći od tog broja. 
+  - Plata je inicijalno null, pa kad se unese id tog zaposlenog u neku zavisnu tabelu, tad se aktivira triger koji određuje platu.
   
 # Planirani upiti
 
