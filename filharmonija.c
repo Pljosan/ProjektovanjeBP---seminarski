@@ -18,6 +18,7 @@ char buffer[BUFFER_SIZE];
 
 void printIntro();
 void printHigijenicar();
+void printIzvodjaci(char instrument[256], char sala[256], char vreme[256]);
 
 static void error_fatal(char *format, ...){
 	va_list arguments;
@@ -78,7 +79,22 @@ int main(int argc, char** argv){
 			printf("Unesite trazene podatke o blagajniku kog zelite da unesete:\n");
 		}
 		else if(choice == 'a'){
+			char instrument[256];
+			char sala[256];
+			char vreme[256];
 			printf("Unesite instrument izvodjaca i naziv sale, kao i vreme, u kojoj je svirao:\n");
+			printf("Instrument: ");
+			scanf("%s", instrument); //violina ; kontrabas 
+			scanf("%c", &waste);
+			printf("Naziv: "); 
+			fgets (sala, 256, stdin); //Petar Iljic Cajkovski 
+			sala[strlen(sala) - 1] = '\0'; //brisanje novog reda 
+			printf("Vreme (HH:MM:SS format): "); //20:00:00
+			scanf("%s", vreme);
+			scanf("%c", &waste);
+			
+			printIzvodjaci(instrument, sala, vreme);
+			
 		}
 		else if(choice == 'n'){
 			printf("Unesite vreme izvodjenja i naziv sale da biste dobili detalje o izvodjacima:\n");
@@ -115,7 +131,8 @@ void printIntro(){
 }
 
 void printHigijenicar(){
-	sprintf(query, "SELECT o.id, o.ime, o.prezime, h.strucnaSprema FROM Osoblje o JOIN Higijenicar h ON o.id = h.Osoblje_id;");
+	sprintf(query, "SELECT o.id, o.ime, o.prezime, h.strucnaSprema \
+									FROM Osoblje o JOIN Higijenicar h ON o.id = h.Osoblje_id;");
 	if (mysql_query(connection, query) != 0)
 		error_fatal("Query error %s\n", mysql_error(connection));
 		
@@ -129,4 +146,31 @@ void printHigijenicar(){
 				printf ("%s\t", row[i]);
 			printf ("\n");
 		}
+}
+
+void printIzvodjaci(char instrument[256], char sala[256], char vreme[256]){
+	
+	sprintf(query, "SELECT o.ime, o.prezime, ork.naziv 'Nazvi orkestra' \
+									FROM Osoblje o JOIN Pripada p ON o.id = p.Izvodjac_Osoblje_id \
+										JOIN Orkestar ork ON p.Orkestar_id = ork.id \
+										JOIN Nastupa n ON n.Izvodi_Diriguje_Orkestar_id = ork.id \
+										JOIN KoncertnaSala k ON n.KoncertnaSala_id = k.id \
+									WHERE o.id IN (SELECT Osoblje_id FROM Izvodjac WHERE instrument = \"%s\") \
+										AND k.naziv = \"%s\" AND n.vreme = \"%s\";", instrument, sala, vreme);
+	
+	if (mysql_query(connection, query) != 0)
+		error_fatal("Query error %s\n", mysql_error(connection));
+		
+	result = mysql_use_result(connection);
+	columnField = mysql_fetch_field(result);
+	printf("\n%s\t%s\t%s\n", columnField[0].name, columnField[1].name, columnField[2].name);
+	printf("-------------------------------\n");
+	int numOfFields = mysql_num_fields(result);
+	while((row = mysql_fetch_row(result)) != 0){
+			for (int i = 0; i < numOfFields; i++)
+				printf ("%s\t", row[i]);
+			printf ("\n");
+		}	
+		
+	printf("\n\n");
 }

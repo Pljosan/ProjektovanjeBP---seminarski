@@ -28,8 +28,8 @@ insert into KoncertnaSala values
   (4, 'Volfgang Amadeus Mocart', 270);
 
 insert into Orkestar values
-  (1),
-  (2);
+  (1, 'Kolibri'),
+  (2, 'Slavuji');
 
 insert into Kompozicija values
   (1, 'Deveta simfonija', 'Betoven', 'Nemacka', 1824, 65, 4), -- 4 cina
