@@ -1,13 +1,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <mysql.h>
+#include </usr/include/mysql/mysql.h>
 #include <stdarg.h>
 #include <errno.h>
 #include <stdbool.h>
 
 #define QUERY_SIZE 256
 #define BUFFER_SIZE 80
+
+MYSQL *connection;
+MYSQL_RES *result;
+MYSQL_ROW row;
+MYSQL_FIELD *columnField;
+char query[QUERY_SIZE];
+char buffer[BUFFER_SIZE];
+
+void printIntro();
+void printHigijenicar();
 
 static void error_fatal(char *format, ...){
 	va_list arguments;
@@ -20,39 +30,50 @@ static void error_fatal(char *format, ...){
 }
 
 int main(int argc, char** argv){
-	MYSQL *connection;
-	MYSQL_RES *result;
-	MYSQL_ROW row;
-	MYSQL_FIELD *columnField;
-	char query[QUERY_SIZE];
-	char buffer[BUFFER_SIZE];
-	
+
 	connection = mysql_init(NULL);
-	
-	if (mysql_real_connect(connection, "localhost", "root", "1234", "_____", 0, NULL, 0) == NULL)
+
+	if (mysql_real_connect(connection, "localhost", "root", "1234", "filharmonija", 0, NULL, 0) == NULL)
 	  error_fatal("Connection error. %s\n", mysql_error(connection));
-		
+
 	char choice;
+	char waste;
 	while(true){
-		printf("Unosom odgovarajuceg slova, izaberite akciju koju zelite, od navedenih:\n");
-		printf("(s) Menjanje strucne spreme higijenicaru\n");
-		printf("(b) Dodavanje novog blagajnika\n");
-		printf("(a) Dohvatanje podataka o izvodjacu kog ste slusali, po instrumentu\n");
-		printf("(n) Dohvatanje podataka o izvodjacima i dirigentu koncerta koji ste slusali\n");
-		printf("(d) Dodavanje novog dirigenta\n");
-		printf("(c) Unosenje podataka o cinovima kompozicije\n");
-		printf("(o) Odredjivanje pozicije novog zaposlenog\n");
-		printf("(x) Izlaz\n");
+		printIntro();
+		printf("Izbor: ");
 		scanf("%c", &choice);
-		scanf("%c");
-		
+		scanf("%c", &waste);
+
 		if(choice == 'x'){
 			printf("Hvala sto se koristili aplikaciju! Cao!\n");
 			break;
 		}
+		
 		else if(choice == 's'){
-			printf("Izaberite higijenicara kom zelite da promenite strucnu spremu:\n");
+			int id;
+			char ss[256];
+			printf("Izaberite id higijenicara kom zelite da promenite strucnu spremu, od ponudjenih:\n");
+			printHigijenicar();
+			
+			//ucitavanje podataka			
+			printf("Id: ");		
+			scanf("%d", &id);
+			scanf("%c", &waste);
+			printf("Strucna sprema: ");
+			fgets (ss, 256, stdin);
+			ss[strlen(ss) - 1] = '\0'; //brisanje novog reda 
+			
+			sprintf(query, "UPDATE Higijenicar SET strucnaSprema = \"%s\" WHERE Osoblje_id = \"%d\";", ss, id);
+			if (mysql_query(connection, query) != 0)
+				error_fatal("Query error %s\n", mysql_error(connection));		
+			else{
+				printf("\nUspesno ste promenili strucnu spremu izabranog higijenicara.\n");
+				printHigijenicar();
+			}
+			
+			printf("\n\n");
 		}
+		
 		else if(choice == 'b'){
 			printf("Unesite trazene podatke o blagajniku kog zelite da unesete:\n");
 		}
@@ -75,8 +96,37 @@ int main(int argc, char** argv){
 		    printf("Uneto slovo nije komanda! Pokusajte ponovo!\n");
 		}
 	}
-		
+
 	mysql_close(connection);
-	
+
 	return 0;
+}
+
+void printIntro(){
+	printf("Unosom odgovarajuceg slova, izaberite akciju koju zelite, od navedenih:\n");
+	printf("(s) Menjanje strucne spreme higijenicaru\n");
+	printf("(b) Dodavanje novog blagajnika\n");
+	printf("(a) Dohvatanje podataka o izvodjacu kog ste slusali, po instrumentu\n");
+	printf("(n) Dohvatanje podataka o izvodjacima i dirigentu koncerta koji ste slusali\n");
+	printf("(d) Dodavanje novog dirigenta\n");
+	printf("(c) Unosenje podataka o cinovima kompozicije\n");
+	printf("(o) Odredjivanje pozicije novog zaposlenog\n");
+	printf("(x) Izlaz\n\n");
+}
+
+void printHigijenicar(){
+	sprintf(query, "SELECT o.id, o.ime, o.prezime, h.strucnaSprema FROM Osoblje o JOIN Higijenicar h ON o.id = h.Osoblje_id;");
+	if (mysql_query(connection, query) != 0)
+		error_fatal("Query error %s\n", mysql_error(connection));
+		
+	result = mysql_use_result(connection);
+	columnField = mysql_fetch_field(result);
+	printf("%s\t%s\t%s\t%s\n", columnField[0].name, columnField[1].name, columnField[2].name, columnField[3].name);
+	printf("-------------------------------------\n");
+	int numOfFields = mysql_num_fields(result);
+	while((row = mysql_fetch_row(result)) != 0){
+			for (int i = 0; i < numOfFields; i++)
+				printf ("%s\t", row[i]);
+			printf ("\n");
+		}
 }
