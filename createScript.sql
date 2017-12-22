@@ -22,7 +22,7 @@ USE `filharmonija` ;
 -- Table `Osoblje`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `Osoblje` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `jmbg` BIGINT NOT NULL,
   `ime` VARCHAR(45) NOT NULL,
   `prezime` VARCHAR(45) NOT NULL,
@@ -102,13 +102,13 @@ CREATE TABLE IF NOT EXISTS `Blagajnik` (
   CONSTRAINT `fk_table4_Osoblje1`
     FOREIGN KEY (`Osoblje_id`)
     REFERENCES `Osoblje` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `fk_Blagajnik_Blagajna1`
     FOREIGN KEY (`Blagajna_id`)
     REFERENCES `Blagajna` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -333,5 +333,20 @@ BEGIN
   UPDATE Osoblje
   SET plata = 40000
   WHERE id = new.Osoblje_id;
+END;
+$$
+
+CREATE TRIGGER beforeInsertOnBlagajnikSmena
+BEFORE INSERT ON Blagajnik
+FOR EACH ROW 
+BEGIN
+  IF new.preferiranaSmena = 'jutro' 
+  THEN
+    IF (select radnoVreme from Blagajna where id = new.Blagajna_id) = '15:00:00'
+    THEN
+      -- DELETE FROM Osoblje WHERE id = new.Osoblje_id;
+      SIGNAL sqlstate '70000' set message_text = 'Omasili ste smenu!';
+    END IF;
+  END IF; 
 END;
 $$
