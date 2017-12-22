@@ -286,6 +286,95 @@ SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
 delimiter $$
 
+CREATE TRIGGER osobljePlataCheckU
+BEFORE UPDATE ON Osoblje
+FOR EACH ROW
+BEGIN
+  IF new.plata <= 0
+  THEN
+    SIGNAL sqlstate '45000' SET message_text = 'Plata mora biti veca od 0';
+  END IF;
+END;
+$$
+
+CREATE TRIGGER osobljePlataCheckI
+BEFORE INSERT ON Osoblje
+FOR EACH ROW
+BEGIN
+  IF new.plata <= 0
+  THEN
+    SIGNAL sqlstate '45000' SET message_text = 'Plata mora biti veca od 0';
+  END IF;
+END;
+$$
+
+CREATE TRIGGER dirigentStazCheckI
+BEFORE INSERT ON Dirigent
+FOR EACH ROW
+BEGIN
+  IF new.godineIskustva <= 5
+  THEN
+    SIGNAL sqlstate '45000' SET message_text = 'Dirigent mora imati vise od 5 godina iskustva';
+  END IF;
+END;
+$$
+
+CREATE TRIGGER dirigentStazCheckU
+BEFORE UPDATE ON Dirigent
+FOR EACH ROW
+BEGIN
+  IF new.godineIskustva <= 5
+  THEN
+    SIGNAL sqlstate '45000' SET message_text = 'Dirigent mora imati vise od 5 godina iskustva';
+  END IF;
+END;
+$$
+
+CREATE TRIGGER blagajnikSmenaCheckU
+BEFORE UPDATE ON Blagajnik
+FOR EACH ROW
+BEGIN
+  IF new.preferiranaSmena NOT IN ('jutro', 'podne')
+  THEN
+    SIGNAL sqlstate '45000' SET message_text = 'Smena moze biti samo jutro ili podne';
+  END IF;
+END;
+$$
+
+
+CREATE TRIGGER blagajnikSmenaCheckI
+BEFORE INSERT ON Blagajnik
+FOR EACH ROW
+BEGIN
+  IF new.preferiranaSmena NOT IN ('jutro', 'podne')
+  THEN
+    SIGNAL sqlstate '45000' SET message_text = 'Smena moze biti samo jutro ili podne';
+  END IF;
+END;
+$$
+
+CREATE TRIGGER salaMestaCheckU
+BEFORE UPDATE ON KoncertnaSala
+FOR EACH ROW
+BEGIN
+  IF new.brojMesta < 50
+  THEN
+    SIGNAL sqlstate '45000' SET message_text = 'Sala ne sme imati manje od 50 mesta';
+  END IF;
+END;
+$$
+
+CREATE TRIGGER salaMestaCheckI
+BEFORE INSERT ON KoncertnaSala
+FOR EACH ROW
+BEGIN
+  IF new.brojMesta < 50
+  THEN
+    SIGNAL sqlstate '45000' SET message_text = 'Sala ne sme imati manje od 50 mesta';
+  END IF;
+END;
+$$
+
 CREATE TRIGGER afterUpdateOnHigijenicar
 AFTER UPDATE ON Higijenicar
 FOR EACH ROW
@@ -336,6 +425,29 @@ BEGIN
 END;
 $$
 
+CREATE TRIGGER beforeInsertOnDiriguje
+BEFORE INSERT ON Diriguje
+FOR EACH ROW
+BEGIN
+  IF new.Dirigent_Osoblje_id in (SELECT Osoblje_id FROM Dirigent WHERE penzija = 1)
+  THEN
+    SIGNAL sqlstate '70000' set message_text = 'Dirigent je penzionisan!';
+  END IF;  
+END;
+$$
+
+CREATE TRIGGER beforeInsertOnCin
+BEFORE INSERT ON Cin
+FOR EACH ROW
+BEGIN
+  IF (SELECT COUNT(Kompozicija_id) FROM Cin WHERE Kompozicija_id = new.Kompozicija_id) 
+    = (SELECT brojCinova FROM Kompozicija WHERE id = new.Kompozicija_id)
+  THEN
+    SIGNAL sqlstate '70000' set message_text = 'Vec su uneti svi cinovi!';
+  END IF;  
+END;
+$$
+
 CREATE TRIGGER beforeInsertOnBlagajnikSmena
 BEFORE INSERT ON Blagajnik
 FOR EACH ROW 
@@ -347,6 +459,14 @@ BEGIN
       -- DELETE FROM Osoblje WHERE id = new.Osoblje_id;
       SIGNAL sqlstate '70000' set message_text = 'Omasili ste smenu!';
     END IF;
-  END IF; 
+  END IF;
+  IF new.preferiranaSmena = 'podne'
+  THEN 
+    IF (select radnoVreme from Blagajna where id = new.Blagajna_id) = '09:00:00'
+    THEN
+      -- DELETE FROM Osoblje WHERE id = new.Osoblje_id;
+      SIGNAL sqlstate '70000' set message_text = 'Omasili ste smenu!';
+    END IF;
+  END IF;
 END;
 $$
