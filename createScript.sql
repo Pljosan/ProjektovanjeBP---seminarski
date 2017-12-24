@@ -42,8 +42,8 @@ CREATE TABLE IF NOT EXISTS `Izvodjac` (
   CONSTRAINT `fk_table1_Osoblje`
     FOREIGN KEY (`Osoblje_id`)
     REFERENCES `Osoblje` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -59,8 +59,8 @@ CREATE TABLE IF NOT EXISTS `Dirigent` (
   CONSTRAINT `fk_table2_Osoblje1`
     FOREIGN KEY (`Osoblje_id`)
     REFERENCES `Osoblje` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -75,8 +75,8 @@ CREATE TABLE IF NOT EXISTS `Higijenicar` (
   CONSTRAINT `fk_table3_Osoblje1`
     FOREIGN KEY (`Osoblje_id`)
     REFERENCES `Osoblje` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -135,13 +135,13 @@ CREATE TABLE IF NOT EXISTS `Zaduzen` (
   CONSTRAINT `fk_Higijenicar_has_KoncertnaSala_Higijenicar1`
     FOREIGN KEY (`Higijenicar_Osoblje_id`)
     REFERENCES `Higijenicar` (`Osoblje_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `fk_Higijenicar_has_KoncertnaSala_KoncertnaSala1`
     FOREIGN KEY (`KoncertnaSala_id`)
     REFERENCES `KoncertnaSala` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -172,8 +172,8 @@ CREATE TABLE IF NOT EXISTS `Cin` (
   CONSTRAINT `fk_Cin_Kompozicija1`
     FOREIGN KEY (`Kompozicija_id`)
     REFERENCES `Kompozicija` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -199,13 +199,13 @@ CREATE TABLE IF NOT EXISTS `Pripada` (
   CONSTRAINT `fk_Izvodjac_has_Orkestar_Izvodjac1`
     FOREIGN KEY (`Izvodjac_Osoblje_id`)
     REFERENCES `Izvodjac` (`Osoblje_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `fk_Izvodjac_has_Orkestar_Orkestar1`
     FOREIGN KEY (`Orkestar_id`)
     REFERENCES `Orkestar` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -221,13 +221,13 @@ CREATE TABLE IF NOT EXISTS `Diriguje` (
   CONSTRAINT `fk_Dirigent_has_Orkestar_Dirigent1`
     FOREIGN KEY (`Dirigent_Osoblje_id`)
     REFERENCES `Dirigent` (`Osoblje_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `fk_Dirigent_has_Orkestar_Orkestar1`
     FOREIGN KEY (`Orkestar_id`)
     REFERENCES `Orkestar` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -244,13 +244,13 @@ CREATE TABLE IF NOT EXISTS `Izvodi` (
   CONSTRAINT `fk_Kompozicija_has_Diriguje_Kompozicija1`
     FOREIGN KEY (`Kompozicija_id`)
     REFERENCES `Kompozicija` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `fk_Kompozicija_has_Diriguje_Diriguje1`
     FOREIGN KEY (`Diriguje_Dirigent_Osoblje_id` , `Diriguje_Orkestar_id`)
     REFERENCES `Diriguje` (`Dirigent_Osoblje_id` , `Orkestar_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -269,13 +269,13 @@ CREATE TABLE IF NOT EXISTS `Nastupa` (
   CONSTRAINT `fk_Izvodi_has_KoncertnaSala_Izvodi1`
     FOREIGN KEY (`Izvodi_Kompozicija_id` , `Izvodi_Diriguje_Dirigent_Osoblje_id` , `Izvodi_Diriguje_Orkestar_id`)
     REFERENCES `Izvodi` (`Kompozicija_id` , `Diriguje_Dirigent_Osoblje_id` , `Diriguje_Orkestar_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `fk_Izvodi_has_KoncertnaSala_KoncertnaSala1`
     FOREIGN KEY (`KoncertnaSala_id`)
     REFERENCES `KoncertnaSala` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
