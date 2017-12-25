@@ -385,12 +385,15 @@ $$
 
 -- povecati platu higijenicaru koji se potrudio da zavrsi visi nivo
 CREATE TRIGGER afterUpdateOnHigijenicar
-AFTER UPDATE ON Higijenicar
+BEFORE UPDATE ON Higijenicar
 FOR EACH ROW
 BEGIN
-  UPDATE Osoblje
-  SET plata = plata + 5000
-  WHERE id = new.Osoblje_id;
+  IF (old.strucnaSprema <> new.strucnaSprema) 
+  THEN
+    UPDATE Osoblje
+    SET plata = plata + 5000
+    WHERE id = new.Osoblje_id;
+  END IF;
 END;
 $$
 

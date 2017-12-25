@@ -404,23 +404,23 @@ void insertDirigent(char ime[256], char prezime[256], long jmbg, char adresa[256
 		error_fatal("Query error %s\n", mysql_error(connection));
 		mysql_rollback(connection);
 	}
-	
-	sprintf(query, "INSERT INTO Diriguje VALUES (\"%d\", \"%d\");", idB, orkId);
-	if(mysql_query(connection, query) != 0){
-		error_fatal("Query error %s\n", mysql_error(connection));
-		mysql_rollback(connection);
-	}
 	else{
-		mysql_commit(connection);
-		
-		sprintf(query, "SELECT o.ime, o.prezime, d.godineIskustva, d.konzervatorijum, d.penzija \
-										FROM Osoblje o JOIN Dirigent d ON o.id = d.Osoblje_id;");
-		if (mysql_query(connection, query) != 0)
+		sprintf(query, "INSERT INTO Diriguje VALUES (\"%d\", \"%d\");", idB, orkId);
+		if(mysql_query(connection, query) != 0){
 			error_fatal("Query error %s\n", mysql_error(connection));
-	  
-		printTable();
+			mysql_rollback(connection);
+		}
+		else{
+			mysql_commit(connection);
+			
+			sprintf(query, "SELECT o.ime, o.prezime, d.godineIskustva, d.konzervatorijum, d.penzija \
+											FROM Osoblje o JOIN Dirigent d ON o.id = d.Osoblje_id;");
+			if (mysql_query(connection, query) != 0)
+				error_fatal("Query error %s\n", mysql_error(connection));
+		  
+			printTable();
+		}
 	}
-	
 	mysql_autocommit(connection, 1);	
 }
 
@@ -472,7 +472,7 @@ void doKompozicijaCinDodavanje(){
 		printf("Naziv cina: ");
 		fgets (nazivCina, 256, stdin);
 		nazivCina[strlen(nazivCina) - 1] = '\0'; //brisanje novog reda 
-		insertCin(idKomp, id, naziv);
+		insertCin(idKomp, id, nazivCina);
 		i++;
 	}
 	sprintf(query, "SELECT * FROM Cin ORDER BY Kompozicija_id;");
