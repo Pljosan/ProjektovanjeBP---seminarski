@@ -32,13 +32,28 @@ insert into Orkestar values
   (2, 'Slavuji');
 
 insert into Kompozicija values
-  (1, 'Deveta simfonija', 'Betoven', 'Nemacka', 1824, 65, 4), -- 4 cina
-  (2, 'Tokata i Fuga', 'Bah', 'Nemacka', 1704, 10, 1), -- 1 cin? 0 cinova?
-  (3, 'naziv', 'kompozitor', 'zemlja', 1999, 10, 1),
-  (4, 'naziv', 'kompozitor', 'zemlja', 1999, 10, 1),
-  (5, 'naziv', 'kompozitor', 'zemlja', 1999, 10, 1),
-  (6, 'naziv', 'kompozitor', 'zemlja', 1999, 10, 1),
-  (7, 'naziv', 'kompozitor', 'zemlja', 1999, 10, 1);
+  (1, 'Deveta simfonija', 'Betoven', 'Nemacka', 1824, 65, 4),
+  (2, 'Tokata i Fuga', 'Bah', 'Nemacka', 1704, 10, 1),
+  (3, 'Let Valkira', 'Vagner', 'Nemacka', 1930, 15, 1),
+  (4, 'Godisnja doba', 'Verdi', 'Italija', 1784, 60, 4),
+  (5, 'Za Elizu', 'Betoven', 'Nemacka', 1801, 12, 1),
+  (6, 'Rekvijem', 'Mocart', 'Austrija', 1789, 33, 1),
+  (7, 'Mala nocna muzika', 'Mocart', 'Austrija', 1791, 13, 1);
+
+insert into Cin values
+  (1, 1, 'Prvi cin'),
+  (2, 1, 'Drugi cin'),
+  (3, 1, 'Treci cin'),
+  (4, 1, 'Oda radosti'),
+  (1, 2, 'Prvi cin'),
+  (1, 3, 'Prvi cin'),
+  (1, 4, 'Prolece'),
+  (2, 4, 'Leto'),
+  (3, 4, 'Jesen'),
+  (4, 4, 'Zima'),
+  (1, 5, 'Prvi cin'),
+  (1, 6, 'Prvi cin'),
+  (1, 7, 'Prvi cin');
 
 insert into Dirigent values
   (2, 12, 'Becki konzervatorijum', 0),

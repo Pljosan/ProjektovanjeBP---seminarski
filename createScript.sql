@@ -286,13 +286,14 @@ SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
 delimiter $$
 
+-- ne sme se uneti plata manja od 0
 CREATE TRIGGER osobljePlataCheckU
 BEFORE UPDATE ON Osoblje
 FOR EACH ROW
 BEGIN
   IF new.plata <= 0
   THEN
-    SIGNAL sqlstate '45000' SET message_text = 'Plata mora biti veca od 0';
+    SIGNAL sqlstate '70000' SET message_text = 'Plata mora biti veca od 0';
   END IF;
 END;
 $$
@@ -303,18 +304,20 @@ FOR EACH ROW
 BEGIN
   IF new.plata <= 0
   THEN
-    SIGNAL sqlstate '45000' SET message_text = 'Plata mora biti veca od 0';
+    SIGNAL sqlstate '70000' SET message_text = 'Plata mora biti veca od 0';
   END IF;
 END;
 $$
 
+
+-- staz dirigenta mora biti veci od 5 godina
 CREATE TRIGGER dirigentStazCheckI
 BEFORE INSERT ON Dirigent
 FOR EACH ROW
 BEGIN
   IF new.godineIskustva <= 5
   THEN
-    SIGNAL sqlstate '45000' SET message_text = 'Dirigent mora imati vise od 5 godina iskustva';
+    SIGNAL sqlstate '70000' SET message_text = 'Dirigent mora imati vise od 5 godina iskustva';
   END IF;
 END;
 $$
@@ -325,18 +328,20 @@ FOR EACH ROW
 BEGIN
   IF new.godineIskustva <= 5
   THEN
-    SIGNAL sqlstate '45000' SET message_text = 'Dirigent mora imati vise od 5 godina iskustva';
+    SIGNAL sqlstate '70000' SET message_text = 'Dirigent mora imati vise od 5 godina iskustva';
   END IF;
 END;
 $$
 
+
+-- smene moze biti samo jutro ili podne
 CREATE TRIGGER blagajnikSmenaCheckU
 BEFORE UPDATE ON Blagajnik
 FOR EACH ROW
 BEGIN
   IF new.preferiranaSmena NOT IN ('jutro', 'podne')
   THEN
-    SIGNAL sqlstate '45000' SET message_text = 'Smena moze biti samo jutro ili podne';
+    SIGNAL sqlstate '70000' SET message_text = 'Smena moze biti samo jutro ili podne';
   END IF;
 END;
 $$
@@ -348,18 +353,20 @@ FOR EACH ROW
 BEGIN
   IF new.preferiranaSmena NOT IN ('jutro', 'podne')
   THEN
-    SIGNAL sqlstate '45000' SET message_text = 'Smena moze biti samo jutro ili podne';
+    SIGNAL sqlstate '70000' SET message_text = 'Smena moze biti samo jutro ili podne';
   END IF;
 END;
 $$
 
+
+-- broj mesta mora biti bar 50
 CREATE TRIGGER salaMestaCheckU
 BEFORE UPDATE ON KoncertnaSala
 FOR EACH ROW
 BEGIN
   IF new.brojMesta < 50
   THEN
-    SIGNAL sqlstate '45000' SET message_text = 'Sala ne sme imati manje od 50 mesta';
+    SIGNAL sqlstate '70000' SET message_text = 'Sala ne sme imati manje od 50 mesta';
   END IF;
 END;
 $$
@@ -370,11 +377,13 @@ FOR EACH ROW
 BEGIN
   IF new.brojMesta < 50
   THEN
-    SIGNAL sqlstate '45000' SET message_text = 'Sala ne sme imati manje od 50 mesta';
+    SIGNAL sqlstate '70000' SET message_text = 'Sala ne sme imati manje od 50 mesta';
   END IF;
 END;
 $$
 
+
+-- povecati platu higijenicaru koji se potrudio da zavrsi visi nivo
 CREATE TRIGGER afterUpdateOnHigijenicar
 AFTER UPDATE ON Higijenicar
 FOR EACH ROW
@@ -385,6 +394,8 @@ BEGIN
 END;
 $$
 
+
+-- racunanje plate automatski, u zavisnosti od posla
 CREATE TRIGGER beforeInsertOnIzvodjac
 BEFORE INSERT ON Izvodjac
 FOR EACH ROW
@@ -425,6 +436,8 @@ BEGIN
 END;
 $$
 
+
+-- penzionisan dirigent ne sme da diriguje
 CREATE TRIGGER beforeInsertOnDiriguje
 BEFORE INSERT ON Diriguje
 FOR EACH ROW
@@ -436,6 +449,8 @@ BEGIN
 END;
 $$
 
+
+-- ne sme se uneti vise cinova od predodredjenog broja
 CREATE TRIGGER beforeInsertOnCin
 BEFORE INSERT ON Cin
 FOR EACH ROW
@@ -448,6 +463,8 @@ BEGIN
 END;
 $$
 
+
+-- smene se moraju poklapati
 CREATE TRIGGER beforeInsertOnBlagajnikSmena
 BEFORE INSERT ON Blagajnik
 FOR EACH ROW 

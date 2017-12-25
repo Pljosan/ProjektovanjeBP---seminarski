@@ -23,15 +23,16 @@ void doIzvodjacPoInstrumentu();
 void doIzvodjacDirigentKompozicija();
 void doDirigentDodavanje();
 void doKompozicijaCinDodavanje();
-void doOsobljeDodavanje();
 
 //help functions (for queries and printing)
 void printIntro();
 void printTable();
+void printBlagajne();
 void printHigijenicar();
 void printOrkestar();
 void printIzvodjaciDirigenti(char sala[256], char vreme[256]);
 void printIzvodjaci(char instrument[256], char sala[256], char vreme[256]);
+void printHigijenicariPlate();
 void insertBlagajnik(char ime[256], char prezime[256], long jmbg, char adresa[256], int id, char radnoVreme[256]);
 void insertDirigent(char ime[256], char prezime[256], long jmbg, char adresa[256], int godine, char konzervatorijum[256], int penzija, int orkId);
 void insertKompozicija(int *idKomp, char naziv[256], char kompozitor[256], char zemljaPorekla[256], int godinaPorekla, int trajanje, int brojCinova);
@@ -87,9 +88,6 @@ int main(int argc, char** argv){
 		else if(choice == '6'){
 			doKompozicijaCinDodavanje();
 		}
-		else if(choice == '7'){
-			doOsobljeDodavanje();
-		}
 		else{
 		    printf("Uneta komanda nije prepoznata! Pokusajte ponovo!\n");
 		}
@@ -103,15 +101,16 @@ int main(int argc, char** argv){
 
 //REFACTORED
 void printIntro(){
-	printf("Unosom odgovarajuceg slova, izaberite akciju koju zelite, od navedenih:\n");
+	printf("\n****************************************************************************\n");
+	printf("Unosom odgovarajuceg simbola, izaberite akciju koju zelite, od navedenih:\n");
 	printf("(1) Menjanje strucne spreme higijenicaru\n");
 	printf("(2) Dodavanje novog blagajnika\n");
 	printf("(3) Dohvatanje podataka o izvodjacu kog ste slusali, po instrumentu\n");
 	printf("(4) Dohvatanje podataka o izvodjacima i dirigentu koncerta koji ste slusali\n");
 	printf("(5) Dodavanje novog dirigenta\n");
 	printf("(6) Unosenje podataka o kompoziciji i njenim cinovima\n");
-	printf("(7) Odredjivanje pozicije novog zaposlenog\n");
-	printf("(x) Izlaz\n\n");
+	printf("(x) Izlaz\n");
+	printf("****************************************************************************\n\n");
 }
 
 //REFACTORED
@@ -212,6 +211,8 @@ void insertBlagajnik(char ime[256], char prezime[256], long jmbg, char adresa[25
 	int idB = atoi(row[0]) + 1;
 	mysql_free_result(result); 	
 	
+	//mora da se postavi autocommit na false da bismo napravili transakciju
+	//jer nije radio delete iz trigera
 	mysql_autocommit(connection, 0);
 		
 	sprintf(query, "INSERT INTO Osoblje VALUES (\"%d\", \"%ld\", \"%s\", \"%s\", \"%s\", null);", idB, jmbg, ime, prezime, adresa);
@@ -223,16 +224,17 @@ void insertBlagajnik(char ime[256], char prezime[256], long jmbg, char adresa[25
 		error_fatal("Query error %s\n", mysql_error(connection));
 		mysql_rollback(connection);
 	}
-	else
+	else{
 		mysql_commit(connection);
 		
-	sprintf(query, "SELECT o.ime, o.prezime, b.Blagajna_id, b.preferiranaSmena \
-									FROM Osoblje o JOIN Blagajnik b ON o.id = b.Osoblje_id;");
-	if (mysql_query(connection, query) != 0)
-		error_fatal("Query error %s\n", mysql_error(connection));
-  
-	printTable();
-	
+		sprintf(query, "SELECT o.ime, o.prezime, b.Blagajna_id, b.preferiranaSmena \
+										FROM Osoblje o JOIN Blagajnik b ON o.id = b.Osoblje_id;");
+		if (mysql_query(connection, query) != 0)
+			error_fatal("Query error %s\n", mysql_error(connection));
+	  
+		printTable();
+	}
+		
 	mysql_autocommit(connection, 1);
 }
 
@@ -241,6 +243,7 @@ void doHigijenicarStrucnaSprema(){
 	int id;
 	char ss[256];
 	char waste;
+	printHigijenicariPlate();
 	printf("Izaberite id higijenicara kom zelite da promenite strucnu spremu, od ponudjenih:\n");
 	printHigijenicar();
 	
@@ -258,6 +261,14 @@ void doHigijenicarStrucnaSprema(){
 
 	printf("Uspesno ste promenili strucnu spremu izabranog higijenicara.\n");
 	printHigijenicar();
+	printHigijenicariPlate();
+}
+
+void printHigijenicariPlate(){
+	sprintf(query, "SELECT * FROM Osoblje WHERE id IN (SELECT Osoblje_id FROM Higijenicar)");
+	if (mysql_query(connection, query) != 0)
+		error_fatal("Query error %s\n", mysql_error(connection));		
+	printTable();	
 }
 
 //REFACTORED
@@ -282,6 +293,10 @@ void doBlagajnikDodavanje(){
 	printf("Adresa: ");
 	fgets (adresa, 256, stdin);
 	adresa[strlen(adresa) - 1] = '\0'; //brisanje novog reda 
+	
+	printf("\nIzaberite id blagajne: \n");
+	printBlagajne();
+	
 	printf("Id blagajne: ");
 	scanf("%d", &id);
 	scanf("%c", &waste);
@@ -389,23 +404,22 @@ void insertDirigent(char ime[256], char prezime[256], long jmbg, char adresa[256
 		error_fatal("Query error %s\n", mysql_error(connection));
 		mysql_rollback(connection);
 	}
-	else
-		mysql_commit(connection);
 	
 	sprintf(query, "INSERT INTO Diriguje VALUES (\"%d\", \"%d\");", idB, orkId);
 	if(mysql_query(connection, query) != 0){
 		error_fatal("Query error %s\n", mysql_error(connection));
 		mysql_rollback(connection);
 	}
-	else
+	else{
 		mysql_commit(connection);
 		
-	sprintf(query, "SELECT o.ime, o.prezime, d.godineIskustva, d.konzervatorijum, d.penzija \
-									FROM Osoblje o JOIN Dirigent d ON o.id = d.Osoblje_id;");
-	if (mysql_query(connection, query) != 0)
-		error_fatal("Query error %s\n", mysql_error(connection));
-  
-	printTable();
+		sprintf(query, "SELECT o.ime, o.prezime, d.godineIskustva, d.konzervatorijum, d.penzija \
+										FROM Osoblje o JOIN Dirigent d ON o.id = d.Osoblje_id;");
+		if (mysql_query(connection, query) != 0)
+			error_fatal("Query error %s\n", mysql_error(connection));
+	  
+		printTable();
+	}
 	
 	mysql_autocommit(connection, 1);	
 }
@@ -468,76 +482,6 @@ void doKompozicijaCinDodavanje(){
 	
 }
 
-void doOsobljeDodavanje(){
-	printf("Unesite naziv pozicije kao i potrebne podatke za osobu kojoj zelite da odredite poziciju:\n");	
-	char naziv[256];
-	char ime[256];
-	char prezime[256];
-	long jmbg;
-	char adresa[256];
-	char waste;
-	printf("Naziv pozicije: ");
-	fgets (naziv, 256, stdin);
-	naziv[strlen(naziv) - 1] = '\0'; //brisanje novog reda 			
-	
-	if(strcasecmp(naziv, "izvodjac") && strcasecmp(naziv, "dirigent") && strcasecmp(naziv, "higijenicar") && strcasecmp(naziv, "blagajnik")){
-		printf("Uneta pozicija nije posotjeca! Izaberite od ponudjenih: izvodjac, dirigent, higijenicar, blagajnik;");
-		return;
-	}
-	
-	printf("Ime: ");
-	fgets (ime, 256, stdin);
-	ime[strlen(ime) - 1] = '\0'; //brisanje novog reda 			
-	printf("Prezime: ");
-	fgets (prezime, 256, stdin);
-	prezime[strlen(prezime) - 1] = '\0'; //brisanje novog reda 
-	printf("Jmbg: ");
-	scanf("%ld", &jmbg);
-	scanf("%c", &waste);
-	printf("Adresa: ");
-	fgets (adresa, 256, stdin);
-	adresa[strlen(adresa) - 1] = '\0'; //brisanje novog reda 
-	
-	char instrument[256];
-	int godineIskustva;
-	int penzija;
-	char konzervatorijum[256];
-	char strucnaSprema[256];
-	char sindikat[256];
-	char preferiranaSmena[256];
-	int blagajna;
-	if(!strcasecmp(naziv, "izvodjac")){
-		printf("Instrument: ");
-		fgets (instrument, 256, stdin);
-		instrument[strlen(instrument) - 1] = '\0'; //brisanje novog reda 			
-				
-	}
-	else if(!strcasecmp(naziv, "dirigent")){
-		printf("Godine iskustva: ");
-		scanf("%d", &godineIskustva);
-		scanf("%c", &waste);
-		printf("Penzionisan: ");
-		scanf("%d", &penzija);
-		scanf("%c", &waste);
-		printf("Konzervatorijum: ");
-		fgets (konzervatorijum, 256, stdin);
-		konzervatorijum[strlen(konzervatorijum) - 1] = '\0'; //brisanje novog reda 		
-	}
-	else if(!strcasecmp(naziv, "higijenicar")){
-		printf("Konzervatorijum: ");
-		fgets (konzervatorijum, 256, stdin);
-		konzervatorijum[strlen(konzervatorijum) - 1] = '\0'; //brisanje novog reda 		
-		printf("Konzervatorijum: ");
-		fgets (konzervatorijum, 256, stdin);
-		konzervatorijum[strlen(konzervatorijum) - 1] = '\0'; //brisanje novog reda 				
-	}
-	else if(!strcasecmp(naziv, "blagajnik")){
-		
-	}
-	
-	// insertOsoba();
-}
-
 void insertKompozicija(int *idKomp, char naziv[256], char kompozitor[256], char zemljaPorekla[256], int godinaPorekla, int trajanje, int brojCinova){
 	sprintf(query, "SELECT max(id) FROM Kompozicija;");
 	if (mysql_query(connection, query) != 0)
@@ -564,3 +508,10 @@ void insertCin(int idKomp, int id, char naziv[256]){
 	if(mysql_query(connection, query) != 0)
 		error_fatal("Query error %s\n", mysql_error(connection));	
 } 
+
+void printBlagajne(){
+		sprintf(query, "SELECT * FROM Blagajna;");
+		if(mysql_query(connection, query) != 0)
+			error_fatal("Query error %s\n", mysql_error(connection));
+		printTable();
+}
