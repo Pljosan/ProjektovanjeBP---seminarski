@@ -109,7 +109,7 @@ void printIntro(){
 	printf("(3) Dohvatanje podataka o izvodjacu kog ste slusali, po instrumentu\n");
 	printf("(4) Dohvatanje podataka o izvodjacima i dirigentu koncerta koji ste slusali\n");
 	printf("(5) Dodavanje novog dirigenta\n");
-	printf("(6) Unosenje podataka o cinovima kompozicije\n");
+	printf("(6) Unosenje podataka o kompoziciji i njenim cinovima\n");
 	printf("(7) Odredjivanje pozicije novog zaposlenog\n");
 	printf("(x) Izlaz\n\n");
 }
@@ -419,7 +419,6 @@ void printOrkestar(){
 
 void doKompozicijaCinDodavanje(){
 	printf("Unesite potrebne podatke za kompoziciju, a zatim i za cin:\n");
-	//id, naziv, kompozitor, zemljaporekla, godinaporekla, trajanje, brojcinova, id, kompozicija_id, naziv
 	char naziv[256];
 	char kompozitor[256];
 	char zemljaPorekla[256];
@@ -471,6 +470,72 @@ void doKompozicijaCinDodavanje(){
 
 void doOsobljeDodavanje(){
 	printf("Unesite naziv pozicije kao i potrebne podatke za osobu kojoj zelite da odredite poziciju:\n");	
+	char naziv[256];
+	char ime[256];
+	char prezime[256];
+	long jmbg;
+	char adresa[256];
+	char waste;
+	printf("Naziv pozicije: ");
+	fgets (naziv, 256, stdin);
+	naziv[strlen(naziv) - 1] = '\0'; //brisanje novog reda 			
+	
+	if(strcasecmp(naziv, "izvodjac") && strcasecmp(naziv, "dirigent") && strcasecmp(naziv, "higijenicar") && strcasecmp(naziv, "blagajnik")){
+		printf("Uneta pozicija nije posotjeca! Izaberite od ponudjenih: izvodjac, dirigent, higijenicar, blagajnik;");
+		return;
+	}
+	
+	printf("Ime: ");
+	fgets (ime, 256, stdin);
+	ime[strlen(ime) - 1] = '\0'; //brisanje novog reda 			
+	printf("Prezime: ");
+	fgets (prezime, 256, stdin);
+	prezime[strlen(prezime) - 1] = '\0'; //brisanje novog reda 
+	printf("Jmbg: ");
+	scanf("%ld", &jmbg);
+	scanf("%c", &waste);
+	printf("Adresa: ");
+	fgets (adresa, 256, stdin);
+	adresa[strlen(adresa) - 1] = '\0'; //brisanje novog reda 
+	
+	char instrument[256];
+	int godineIskustva;
+	int penzija;
+	char konzervatorijum[256];
+	char strucnaSprema[256];
+	char sindikat[256];
+	char preferiranaSmena[256];
+	int blagajna;
+	if(!strcasecmp(naziv, "izvodjac")){
+		printf("Instrument: ");
+		fgets (instrument, 256, stdin);
+		instrument[strlen(instrument) - 1] = '\0'; //brisanje novog reda 			
+				
+	}
+	else if(!strcasecmp(naziv, "dirigent")){
+		printf("Godine iskustva: ");
+		scanf("%d", &godineIskustva);
+		scanf("%c", &waste);
+		printf("Penzionisan: ");
+		scanf("%d", &penzija);
+		scanf("%c", &waste);
+		printf("Konzervatorijum: ");
+		fgets (konzervatorijum, 256, stdin);
+		konzervatorijum[strlen(konzervatorijum) - 1] = '\0'; //brisanje novog reda 		
+	}
+	else if(!strcasecmp(naziv, "higijenicar")){
+		printf("Konzervatorijum: ");
+		fgets (konzervatorijum, 256, stdin);
+		konzervatorijum[strlen(konzervatorijum) - 1] = '\0'; //brisanje novog reda 		
+		printf("Konzervatorijum: ");
+		fgets (konzervatorijum, 256, stdin);
+		konzervatorijum[strlen(konzervatorijum) - 1] = '\0'; //brisanje novog reda 				
+	}
+	else if(!strcasecmp(naziv, "blagajnik")){
+		
+	}
+	
+	// insertOsoba();
 }
 
 void insertKompozicija(int *idKomp, char naziv[256], char kompozitor[256], char zemljaPorekla[256], int godinaPorekla, int trajanje, int brojCinova){
@@ -498,4 +563,4 @@ void insertCin(int idKomp, int id, char naziv[256]){
 	sprintf(query, "INSERT INTO Cin VALUES (\"%d\", \"%d\", \"%s\");", id, idKomp, naziv);
 	if(mysql_query(connection, query) != 0)
 		error_fatal("Query error %s\n", mysql_error(connection));	
-}
+} 
