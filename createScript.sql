@@ -8,42 +8,42 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 
 -- -----------------------------------------------------
--- Schema mydb
+-- Schema filharmonija
 -- -----------------------------------------------------
-DROP SCHEMA IF EXISTS `mydb` ;
+DROP SCHEMA IF EXISTS `filharmonija` ;
 
 -- -----------------------------------------------------
--- Schema mydb
+-- Schema filharmonija
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
-USE `mydb` ;
+CREATE SCHEMA IF NOT EXISTS `filharmonija` DEFAULT CHARACTER SET utf8 ;
+USE `filharmonija` ;
 
 -- -----------------------------------------------------
 -- Table `Osoblje`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `Osoblje` (
-  `id` INT NOT NULL,
-  `jmbg` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `jmbg` BIGINT NOT NULL,
   `ime` VARCHAR(45) NOT NULL,
   `prezime` VARCHAR(45) NOT NULL,
   `adresa` VARCHAR(45) NOT NULL,
-  `plata` INT NOT NULL,
+  `plata` INT,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `Izvođač`
+-- Table `Izvodjac`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `Izvođač` (
+CREATE TABLE IF NOT EXISTS `Izvodjac` (
   `Osoblje_id` INT NOT NULL,
   `instrument` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`Osoblje_id`),
   CONSTRAINT `fk_table1_Osoblje`
     FOREIGN KEY (`Osoblje_id`)
     REFERENCES `Osoblje` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -54,28 +54,29 @@ CREATE TABLE IF NOT EXISTS `Dirigent` (
   `Osoblje_id` INT NOT NULL,
   `godineIskustva` INT NOT NULL,
   `konzervatorijum` VARCHAR(45) NOT NULL,
+  `penzija` BOOLEAN NOT NULL,
   PRIMARY KEY (`Osoblje_id`),
   CONSTRAINT `fk_table2_Osoblje1`
     FOREIGN KEY (`Osoblje_id`)
     REFERENCES `Osoblje` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `Higijeničar`
+-- Table `Higijenicar`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `Higijeničar` (
+CREATE TABLE IF NOT EXISTS `Higijenicar` (
   `Osoblje_id` INT NOT NULL,
-  `stručnaSprema` VARCHAR(45) NOT NULL,
+  `strucnaSprema` VARCHAR(45) NOT NULL,
   `sindikat` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`Osoblje_id`),
   CONSTRAINT `fk_table3_Osoblje1`
     FOREIGN KEY (`Osoblje_id`)
     REFERENCES `Osoblje` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -101,13 +102,13 @@ CREATE TABLE IF NOT EXISTS `Blagajnik` (
   CONSTRAINT `fk_table4_Osoblje1`
     FOREIGN KEY (`Osoblje_id`)
     REFERENCES `Osoblje` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `fk_Blagajnik_Blagajna1`
     FOREIGN KEY (`Blagajna_id`)
     REFERENCES `Blagajna` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -123,24 +124,24 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `Zadužen`
+-- Table `Zaduzen`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `Zadužen` (
-  `Higijeničar_Osoblje_id` INT NOT NULL,
+CREATE TABLE IF NOT EXISTS `Zaduzen` (
+  `Higijenicar_Osoblje_id` INT NOT NULL,
   `KoncertnaSala_id` INT NOT NULL,
-  PRIMARY KEY (`Higijeničar_Osoblje_id`, `KoncertnaSala_id`),
-  INDEX `fk_Higijeničar_has_KoncertnaSala_KoncertnaSala1_idx` (`KoncertnaSala_id` ASC),
-  INDEX `fk_Higijeničar_has_KoncertnaSala_Higijeničar1_idx` (`Higijeničar_Osoblje_id` ASC),
-  CONSTRAINT `fk_Higijeničar_has_KoncertnaSala_Higijeničar1`
-    FOREIGN KEY (`Higijeničar_Osoblje_id`)
-    REFERENCES `Higijeničar` (`Osoblje_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Higijeničar_has_KoncertnaSala_KoncertnaSala1`
+  PRIMARY KEY (`Higijenicar_Osoblje_id`, `KoncertnaSala_id`),
+  INDEX `fk_Higijenicar_has_KoncertnaSala_KoncertnaSala1_idx` (`KoncertnaSala_id` ASC),
+  INDEX `fk_Higijenicar_has_KoncertnaSala_Higijenicar1_idx` (`Higijenicar_Osoblje_id` ASC),
+  CONSTRAINT `fk_Higijenicar_has_KoncertnaSala_Higijenicar1`
+    FOREIGN KEY (`Higijenicar_Osoblje_id`)
+    REFERENCES `Higijenicar` (`Osoblje_id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_Higijenicar_has_KoncertnaSala_KoncertnaSala1`
     FOREIGN KEY (`KoncertnaSala_id`)
     REFERENCES `KoncertnaSala` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -154,24 +155,25 @@ CREATE TABLE IF NOT EXISTS `Kompozicija` (
   `zemljaPorekla` VARCHAR(45) NOT NULL,
   `godinaPorekla` INT NOT NULL,
   `trajanje` INT NOT NULL,
+  `brojCinova` INT NOT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `Čin`
+-- Table `cin`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `Čin` (
+CREATE TABLE IF NOT EXISTS `Cin` (
   `id` INT NOT NULL,
   `Kompozicija_id` INT NOT NULL,
   `naziv` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`id`, `Kompozicija_id`),
-  INDEX `fk_Čin_Kompozicija1_idx` (`Kompozicija_id` ASC),
-  CONSTRAINT `fk_Čin_Kompozicija1`
+  INDEX `fk_Cin_Kompozicija1_idx` (`Kompozicija_id` ASC),
+  CONSTRAINT `fk_Cin_Kompozicija1`
     FOREIGN KEY (`Kompozicija_id`)
     REFERENCES `Kompozicija` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -180,6 +182,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `Orkestar` (
   `id` INT NOT NULL,
+  `naziv` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
@@ -188,21 +191,21 @@ ENGINE = InnoDB;
 -- Table `Pripada`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `Pripada` (
-  `Izvođač_Osoblje_id` INT NOT NULL,
+  `Izvodjac_Osoblje_id` INT NOT NULL,
   `Orkestar_id` INT NOT NULL,
-  PRIMARY KEY (`Izvođač_Osoblje_id`, `Orkestar_id`),
-  INDEX `fk_Izvođač_has_Orkestar_Orkestar1_idx` (`Orkestar_id` ASC),
-  INDEX `fk_Izvođač_has_Orkestar_Izvođač1_idx` (`Izvođač_Osoblje_id` ASC),
-  CONSTRAINT `fk_Izvođač_has_Orkestar_Izvođač1`
-    FOREIGN KEY (`Izvođač_Osoblje_id`)
-    REFERENCES `Izvođač` (`Osoblje_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Izvođač_has_Orkestar_Orkestar1`
+  PRIMARY KEY (`Izvodjac_Osoblje_id`, `Orkestar_id`),
+  INDEX `fk_Izvodjac_has_Orkestar_Orkestar1_idx` (`Orkestar_id` ASC),
+  INDEX `fk_Izvodjac_has_Orkestar_Izvodjac1_idx` (`Izvodjac_Osoblje_id` ASC),
+  CONSTRAINT `fk_Izvodjac_has_Orkestar_Izvodjac1`
+    FOREIGN KEY (`Izvodjac_Osoblje_id`)
+    REFERENCES `Izvodjac` (`Osoblje_id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_Izvodjac_has_Orkestar_Orkestar1`
     FOREIGN KEY (`Orkestar_id`)
     REFERENCES `Orkestar` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -218,13 +221,13 @@ CREATE TABLE IF NOT EXISTS `Diriguje` (
   CONSTRAINT `fk_Dirigent_has_Orkestar_Dirigent1`
     FOREIGN KEY (`Dirigent_Osoblje_id`)
     REFERENCES `Dirigent` (`Osoblje_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `fk_Dirigent_has_Orkestar_Orkestar1`
     FOREIGN KEY (`Orkestar_id`)
     REFERENCES `Orkestar` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -241,13 +244,13 @@ CREATE TABLE IF NOT EXISTS `Izvodi` (
   CONSTRAINT `fk_Kompozicija_has_Diriguje_Kompozicija1`
     FOREIGN KEY (`Kompozicija_id`)
     REFERENCES `Kompozicija` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `fk_Kompozicija_has_Diriguje_Diriguje1`
     FOREIGN KEY (`Diriguje_Dirigent_Osoblje_id` , `Diriguje_Orkestar_id`)
     REFERENCES `Diriguje` (`Dirigent_Osoblje_id` , `Orkestar_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -266,16 +269,204 @@ CREATE TABLE IF NOT EXISTS `Nastupa` (
   CONSTRAINT `fk_Izvodi_has_KoncertnaSala_Izvodi1`
     FOREIGN KEY (`Izvodi_Kompozicija_id` , `Izvodi_Diriguje_Dirigent_Osoblje_id` , `Izvodi_Diriguje_Orkestar_id`)
     REFERENCES `Izvodi` (`Kompozicija_id` , `Diriguje_Dirigent_Osoblje_id` , `Diriguje_Orkestar_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `fk_Izvodi_has_KoncertnaSala_KoncertnaSala1`
     FOREIGN KEY (`KoncertnaSala_id`)
     REFERENCES `KoncertnaSala` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+
+delimiter $$
+
+CREATE TRIGGER osobljePlataCheckU
+BEFORE UPDATE ON Osoblje
+FOR EACH ROW
+BEGIN
+  IF new.plata <= 0
+  THEN
+    SIGNAL sqlstate '45000' SET message_text = 'Plata mora biti veca od 0';
+  END IF;
+END;
+$$
+
+CREATE TRIGGER osobljePlataCheckI
+BEFORE INSERT ON Osoblje
+FOR EACH ROW
+BEGIN
+  IF new.plata <= 0
+  THEN
+    SIGNAL sqlstate '45000' SET message_text = 'Plata mora biti veca od 0';
+  END IF;
+END;
+$$
+
+CREATE TRIGGER dirigentStazCheckI
+BEFORE INSERT ON Dirigent
+FOR EACH ROW
+BEGIN
+  IF new.godineIskustva <= 5
+  THEN
+    SIGNAL sqlstate '45000' SET message_text = 'Dirigent mora imati vise od 5 godina iskustva';
+  END IF;
+END;
+$$
+
+CREATE TRIGGER dirigentStazCheckU
+BEFORE UPDATE ON Dirigent
+FOR EACH ROW
+BEGIN
+  IF new.godineIskustva <= 5
+  THEN
+    SIGNAL sqlstate '45000' SET message_text = 'Dirigent mora imati vise od 5 godina iskustva';
+  END IF;
+END;
+$$
+
+CREATE TRIGGER blagajnikSmenaCheckU
+BEFORE UPDATE ON Blagajnik
+FOR EACH ROW
+BEGIN
+  IF new.preferiranaSmena NOT IN ('jutro', 'podne')
+  THEN
+    SIGNAL sqlstate '45000' SET message_text = 'Smena moze biti samo jutro ili podne';
+  END IF;
+END;
+$$
+
+
+CREATE TRIGGER blagajnikSmenaCheckI
+BEFORE INSERT ON Blagajnik
+FOR EACH ROW
+BEGIN
+  IF new.preferiranaSmena NOT IN ('jutro', 'podne')
+  THEN
+    SIGNAL sqlstate '45000' SET message_text = 'Smena moze biti samo jutro ili podne';
+  END IF;
+END;
+$$
+
+CREATE TRIGGER salaMestaCheckU
+BEFORE UPDATE ON KoncertnaSala
+FOR EACH ROW
+BEGIN
+  IF new.brojMesta < 50
+  THEN
+    SIGNAL sqlstate '45000' SET message_text = 'Sala ne sme imati manje od 50 mesta';
+  END IF;
+END;
+$$
+
+CREATE TRIGGER salaMestaCheckI
+BEFORE INSERT ON KoncertnaSala
+FOR EACH ROW
+BEGIN
+  IF new.brojMesta < 50
+  THEN
+    SIGNAL sqlstate '45000' SET message_text = 'Sala ne sme imati manje od 50 mesta';
+  END IF;
+END;
+$$
+
+CREATE TRIGGER afterUpdateOnHigijenicar
+AFTER UPDATE ON Higijenicar
+FOR EACH ROW
+BEGIN
+  UPDATE Osoblje
+  SET plata = plata + 5000
+  WHERE id = new.Osoblje_id;
+END;
+$$
+
+CREATE TRIGGER beforeInsertOnIzvodjac
+BEFORE INSERT ON Izvodjac
+FOR EACH ROW
+BEGIN
+  UPDATE Osoblje
+  SET plata = 70000
+  WHERE id = new.Osoblje_id;
+END;
+$$
+
+CREATE TRIGGER beforeInsertOnHigijenicar
+BEFORE INSERT ON Higijenicar
+FOR EACH ROW
+BEGIN
+  UPDATE Osoblje
+  SET plata = 20000
+  WHERE id = new.Osoblje_id;
+END;
+$$
+
+CREATE TRIGGER beforeInsertOnDirigent
+BEFORE INSERT ON Dirigent
+FOR EACH ROW
+BEGIN
+  UPDATE Osoblje
+  SET plata = 100000
+  WHERE id = new.Osoblje_id;
+END;
+$$
+
+CREATE TRIGGER beforeInsertOnBlagajnik
+BEFORE INSERT ON Blagajnik
+FOR EACH ROW
+BEGIN
+  UPDATE Osoblje
+  SET plata = 40000
+  WHERE id = new.Osoblje_id;
+END;
+$$
+
+CREATE TRIGGER beforeInsertOnDiriguje
+BEFORE INSERT ON Diriguje
+FOR EACH ROW
+BEGIN
+  IF new.Dirigent_Osoblje_id in (SELECT Osoblje_id FROM Dirigent WHERE penzija = 1)
+  THEN
+    SIGNAL sqlstate '70000' set message_text = 'Dirigent je penzionisan!';
+  END IF;  
+END;
+$$
+
+CREATE TRIGGER beforeInsertOnCin
+BEFORE INSERT ON Cin
+FOR EACH ROW
+BEGIN
+  IF (SELECT COUNT(Kompozicija_id) FROM Cin WHERE Kompozicija_id = new.Kompozicija_id) 
+    = (SELECT brojCinova FROM Kompozicija WHERE id = new.Kompozicija_id)
+  THEN
+    SIGNAL sqlstate '70000' set message_text = 'Vec su uneti svi cinovi!';
+  END IF;  
+END;
+$$
+
+CREATE TRIGGER beforeInsertOnBlagajnikSmena
+BEFORE INSERT ON Blagajnik
+FOR EACH ROW 
+BEGIN
+  IF new.preferiranaSmena = 'jutro' 
+  THEN
+    IF (select radnoVreme from Blagajna where id = new.Blagajna_id) = '15:00:00'
+    THEN
+      -- DELETE FROM Osoblje WHERE id = new.Osoblje_id;
+      SIGNAL sqlstate '70000' set message_text = 'Omasili ste smenu!';
+    END IF;
+  END IF;
+  IF new.preferiranaSmena = 'podne'
+  THEN 
+    IF (select radnoVreme from Blagajna where id = new.Blagajna_id) = '09:00:00'
+    THEN
+      -- DELETE FROM Osoblje WHERE id = new.Osoblje_id;
+      SIGNAL sqlstate '70000' set message_text = 'Omasili ste smenu!';
+    END IF;
+  END IF;
+END;
+$$

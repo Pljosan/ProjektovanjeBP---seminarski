@@ -27,6 +27,7 @@ Nezavisni entiteti:
 * Koncertne sale
 * Blagajne
 * Kompozicije
+* Orkestar
 
 Zavisni entiteti:
 * Čin
@@ -37,5 +38,8 @@ Zavisni entiteti:
   * Blagajink
 
 Agregirani entiteti:
+* Pripada
+* Diriguje
 * Izvodi
+* Nastupa
 * Zadužen
